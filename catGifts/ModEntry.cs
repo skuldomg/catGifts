@@ -18,6 +18,8 @@ namespace catGifts
         private List<int> hiGifts;
         private int giftsGiven = 0;
         private bool highTierYesterday = false;
+        private bool giftToday = false;
+        private bool warpedToday = false;
 
         public override void Entry(IModHelper helper)
         {
@@ -214,6 +216,32 @@ namespace catGifts
             }
                         
             TimeEvents.AfterDayStarted += this.AfterDayStarted;
+            PlayerEvents.Warped += this.Warped;
+        }
+
+        // If the cat gave a gift, warp him next to it the first time the player enters the farm
+        public void Warped(object sender, EventArgs e)
+        {
+            if(Game1.currentLocation is Farm && giftToday && !warpedToday)
+            {
+                StardewValley.Characters.Pet theCat = null;
+
+                foreach (NPC pet in Game1.getLocationFromName("Farm").getCharacters())
+                {
+                    if (pet is StardewValley.Characters.Cat)
+                    {
+                        this.Monitor.Log("Found cat for warping.");                        
+                        theCat = (StardewValley.Characters.Pet)pet;
+                    }
+                }
+
+                if (theCat != null)
+                {
+                    theCat.Position = new Vector2(64, 17) * 64f;
+                    this.Monitor.Log("Warped him.");
+                    warpedToday = true;
+                }
+            }
         }
 
         public void AfterDayStarted(object sender, EventArgs e)
@@ -249,6 +277,8 @@ namespace catGifts
                 if (Game1.dayOfMonth % 7 == 0)
                     giftsGiven = 0;
 
+                giftToday = false;
+
                 int giftId = 0;
 
                 // Draw a random gift ID. For clarity we do this in multiple steps
@@ -256,36 +286,40 @@ namespace catGifts
                 // TODO: For now, use values as if the player has max friendship: Cat has 34% chance of giving a gift, ie. every three days, make customizable and/or change to fitting values
                 if (Game1.random.Next(0, 100) >= 66 && !Game1.isRaining && giftsGiven <= 3)
                 {
-                    this.Monitor.Log("Cat will give a gift ... maybe :3");                    
+                    this.Monitor.Log("Cat will give a gift ... maybe :3");
 
                     // Step 2: Determine quality: low = mid > high -> 40% / 40% / 20%
                     int rand = Game1.random.Next(0, 100);
 
                     // Pick a random item
-                    if (rand <= 40) {
+                    if (rand <= 40)
+                    {
                         this.Monitor.Log("Low quality");
                         giftId = lowGifts.ElementAt(Game1.random.Next(lowGifts.Count - 1));
                         highTierYesterday = false;
                     }
-                    else if(rand > 40 && rand <= 80) {
+                    else if (rand > 40 && rand <= 80)
+                    {
                         this.Monitor.Log("Medium quality");
                         giftId = midGifts.ElementAt(Game1.random.Next(midGifts.Count - 1));
                         highTierYesterday = false;
                     }
-                    else if(rand > 80 && !highTierYesterday) {
+                    else if (rand > 80 && !highTierYesterday)
+                    {
                         this.Monitor.Log("High quality! :3");
                         giftId = hiGifts.ElementAt(Game1.random.Next(hiGifts.Count - 1));
                         highTierYesterday = true;
                     }
 
-                    // Spawn gift and move cat next to it
-                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(64, 16) * 64f, Game1.viewport, true, (Farmer)null);
-                    // TODO: Fix
-                    theCat.Position = new Vector2(64, 17) * 64f;
+                    // Spawn gift
+                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(64, 16) * 64f, Game1.viewport, true, (Farmer)null);                    
                     this.Monitor.Log("Object dropped!");
 
                     giftsGiven++;
+                    giftToday = true;
                 }
+                else
+                    this.Monitor.Log("No gift for you. You come back 10 years.");
             }
             else
                 this.Monitor.Log("Player doesn't have a cat.");
