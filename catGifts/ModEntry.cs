@@ -283,7 +283,7 @@ namespace catGifts
                 {
                     if (pet is StardewValley.Characters.Cat)
                     {
-                        //this.Monitor.Log("Found cat for warping.");                        
+                        this.Monitor.Log("Found cat for warping.");                        
                         theCat = (StardewValley.Characters.Pet)pet;
                     }
                 }
@@ -291,7 +291,7 @@ namespace catGifts
                 if (theCat != null)
                 {
                     theCat.Position = new Vector2(64, 17) * 64f;
-                    //this.Monitor.Log("Warped him.");
+                    this.Monitor.Log("Warped him.");
                     warpedToday = true;
                 }
             }
@@ -307,7 +307,7 @@ namespace catGifts
             {
                 if(pet is StardewValley.Characters.Cat)
                 {
-                    //this.Monitor.Log("Player has a cat (on farm).");
+                    this.Monitor.Log("Player has a cat (on farm).");
                     hasCat = true;
                     theCat = (StardewValley.Characters.Pet)pet;
                 }
@@ -316,13 +316,15 @@ namespace catGifts
             {
                 if(pet is StardewValley.Characters.Cat)
                 {
-                    //this.Monitor.Log("Player has a cat (in house).");
+                    this.Monitor.Log("Player has a cat (in house).");
                     hasCat = true;
                     theCat = (StardewValley.Characters.Pet)pet;
                 }
             }
 
-            if (hasCat)
+            // Only check for the main player
+            // TODO: Include farmhands
+            if (hasCat && Context.IsMainPlayer)
             {                
                 int catFriendship = theCat.friendshipTowardFarmer;
 
@@ -344,14 +346,14 @@ namespace catGifts
 
                 int giftId = 0;
 
-                //this.Monitor.Log("Did the cat give a gift?\nFriendship: " + catFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
+                this.Monitor.Log("Did the cat give a gift?\nFriendship: " + catFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
 
                 // Draw a random gift ID. For clarity we do this in multiple steps
                 // Step 1: Determine if cat gives a gift at all                
                 // TODO: For now, use values as if the player has max friendship: Cat has 34% chance of giving a gift, ie. every three days, make customizable and/or change to fitting values
                 if (Game1.random.Next(0, 100) > (100 - giftChance) && !Game1.isRaining && giftsGiven <= MAX_WEEKLY_GIFTS)
                 {
-                    //this.Monitor.Log("Cat will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
+                    this.Monitor.Log("Cat will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
 
                     // Step 2: Determine quality: low = mid > high -> 40% / 40% / 20%
                     int rand = Game1.random.Next(0, 100);
@@ -359,35 +361,35 @@ namespace catGifts
                     // Pick a random item
                     if (rand <= LOW_CHANCE)
                     {
-                        //this.Monitor.Log("Low quality");
+                        this.Monitor.Log("Low quality");
                         giftId = lowGifts.ElementAt(Game1.random.Next(lowGifts.Count - 1));
                         highTierYesterday = false;
                     }
                     else if (rand > LOW_CHANCE && rand <= (LOW_CHANCE + MID_CHANCE))
                     {
-                        //this.Monitor.Log("Medium quality");
+                        this.Monitor.Log("Medium quality");
                         giftId = midGifts.ElementAt(Game1.random.Next(midGifts.Count - 1));
                         highTierYesterday = false;
                     }
                     else if (rand > (100 - HI_CHANCE) && !highTierYesterday)
                     {
-                        //this.Monitor.Log("High quality! :3");
+                        this.Monitor.Log("High quality! :3");
                         giftId = hiGifts.ElementAt(Game1.random.Next(hiGifts.Count - 1));
                         highTierYesterday = true;
                     }
 
                     // Spawn gift
                     Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(64, 16) * 64f, Game1.viewport, true, (Farmer)null);                    
-                    //this.Monitor.Log("Object dropped!");
+                    this.Monitor.Log("Object dropped!");
 
                     giftsGiven++;
                     giftToday = true;
                 }
-               // else
-                    //this.Monitor.Log("No gift for you. You come back 10 years.");
+                else
+                    this.Monitor.Log("No gift for you. You come back 10 years.");
             }
-           // else
-                //this.Monitor.Log("Player doesn't have a cat.");
+            else
+                this.Monitor.Log("Player doesn't have a cat.");
 
         }
 
