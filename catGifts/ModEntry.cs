@@ -17,6 +17,7 @@ namespace catGifts
         private bool highTierYesterday = false;
         private bool giftToday = false;
         private bool warpedToday = false;
+        private int giftId = 0;
 
         // Configuration options
         private int THRESHOLD_1 = -1;
@@ -25,6 +26,7 @@ namespace catGifts
         private int GIFT_CHANCE_1 = -1;
         private int GIFT_CHANCE_2 = -1;
         private int GIFT_CHANCE_3 = -1;
+        private int FARMHAND_CHANCE = -1;
         private int LOW_CHANCE = -1;
         private int MID_CHANCE = -1;
         private int HI_CHANCE = -1;
@@ -42,6 +44,7 @@ namespace catGifts
             this.GIFT_CHANCE_1 = config.GIFT_CHANCE_1;
             this.GIFT_CHANCE_2 = config.GIFT_CHANCE_2;
             this.GIFT_CHANCE_3 = config.GIFT_CHANCE_3;
+            this.FARMHAND_CHANCE = config.FARMHAND_CHANCE;
             this.LOW_CHANCE = config.LOW_CHANCE;
             this.MID_CHANCE = config.MID_CHANCE;
             this.HI_CHANCE = config.HI_CHANCE;
@@ -76,7 +79,7 @@ namespace catGifts
             if (this.MAX_WEEKLY_GIFTS < 0 || this.MAX_WEEKLY_GIFTS > 7)
                 this.MAX_WEEKLY_GIFTS = 3;
 
-            // Initialize gift lits
+            // Initialize gift lists
             lowGifts = new List<int>();
             midGifts = new List<int>();
             hiGifts = new List<int>();
@@ -274,7 +277,7 @@ namespace catGifts
 
         // If the cat gave a gift, warp him next to it the first time the player enters the farm
         public void Warped(object sender, EventArgs e)
-        {
+        {                       
             if(Game1.currentLocation is Farm && giftToday && !warpedToday)
             {
                 StardewValley.Characters.Pet theCat = null;
@@ -290,17 +293,29 @@ namespace catGifts
 
                 if (theCat != null)
                 {
-                    theCat.Position = new Vector2(64, 17) * 64f;
+                    float x = Game1.player.Position.X / 64;
+                    float y = Game1.player.Position.Y / 64;
+
+                    // Spawn gift
+                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
+                    this.Monitor.Log("Object dropped!");                    
+
+                    // Warp cat
+                    theCat.Position = new Vector2(x+1, y+2) * 64f;
                     this.Monitor.Log("Warped him.");
                     warpedToday = true;
                 }
+                else
+                    this.Monitor.Log("Didn't find the cat.");
             }
         }
 
+        // Check if the player gets a gift
         public void AfterDayStarted(object sender, EventArgs e)
         {
             bool hasCat = false;
             StardewValley.Characters.Pet theCat = null;
+            warpedToday = false;
 
             // Look for a cat
             foreach(NPC pet in Game1.getLocationFromName("Farm").getCharacters())
@@ -322,9 +337,7 @@ namespace catGifts
                 }
             }
 
-            // Only check for the main player
-            // TODO: Include farmhands
-            if (hasCat && Context.IsMainPlayer)
+            if (hasCat)
             {                
                 int catFriendship = theCat.friendshipTowardFarmer;
 
@@ -335,8 +348,14 @@ namespace catGifts
                     giftChance = GIFT_CHANCE_1;
                 else if (catFriendship >= THRESHOLD_1 && catFriendship < THRESHOLD_2)
                     giftChance = GIFT_CHANCE_2;
-                else if (catFriendship >= THRESHOLD_2 && catFriendship < THRESHOLD_3)
+                else if (catFriendship >= THRESHOLD_2 && catFriendship <= THRESHOLD_3)
                     giftChance = GIFT_CHANCE_3;
+
+                // if the player is a farmhand, relationship with the cat is broken. Use predetermined chance for farmhands
+                if (!Game1.player.IsMainPlayer) {
+                    this.Monitor.Log("Player is a farmhand.");
+                    giftChance = FARMHAND_CHANCE;
+                }
 
                 // Reset gifts given counter, max gifts per week -> 3
                 if (Game1.dayOfMonth % 7 == 0)
@@ -344,14 +363,17 @@ namespace catGifts
 
                 giftToday = false;
 
-                int giftId = 0;
+                giftId = 0;
 
                 this.Monitor.Log("Did the cat give a gift?\nFriendship: " + catFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
 
                 // Draw a random gift ID. For clarity we do this in multiple steps
-                // Step 1: Determine if cat gives a gift at all                
-                // TODO: For now, use values as if the player has max friendship: Cat has 34% chance of giving a gift, ie. every three days, make customizable and/or change to fitting values
-                if (Game1.random.Next(0, 100) > (100 - giftChance) && !Game1.isRaining && giftsGiven <= MAX_WEEKLY_GIFTS)
+                // Step 1: Determine if cat gives a gift at all                                
+                int random = Game1.random.Next(0, 100);
+
+                this.Monitor.Log("Random number: " + random +" --- must be larger than "+(100 - giftChance));
+
+                if (random > (100 - giftChance) && !Game1.isRaining && giftsGiven <= MAX_WEEKLY_GIFTS)
                 {
                     this.Monitor.Log("Cat will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
 
@@ -376,11 +398,7 @@ namespace catGifts
                         this.Monitor.Log("High quality! :3");
                         giftId = hiGifts.ElementAt(Game1.random.Next(hiGifts.Count - 1));
                         highTierYesterday = true;
-                    }
-
-                    // Spawn gift
-                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(64, 16) * 64f, Game1.viewport, true, (Farmer)null);                    
-                    this.Monitor.Log("Object dropped!");
+                    }                    
 
                     giftsGiven++;
                     giftToday = true;
