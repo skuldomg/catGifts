@@ -270,7 +270,7 @@ namespace catGifts
             }
                         
             TimeEvents.AfterDayStarted += this.AfterDayStarted;
-            PlayerEvents.Warped += this.Warped;
+            LocationEvents.CurrentLocationChanged += this.Warped;
         }
 
         // If the cat gave a gift, warp him next to it the first time the player enters the farm
@@ -295,7 +295,7 @@ namespace catGifts
                     float y = Game1.player.Position.Y / 64;
 
                     // Spawn gift
-                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
+                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true);
                     //this.Monitor.Log("Object dropped!");                    
 
                     // Warp cat
