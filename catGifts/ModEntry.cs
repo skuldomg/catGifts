@@ -25,8 +25,7 @@ namespace catGifts
         private int THRESHOLD_3 = -1;
         private int GIFT_CHANCE_1 = -1;
         private int GIFT_CHANCE_2 = -1;
-        private int GIFT_CHANCE_3 = -1;
-        private int FARMHAND_CHANCE = -1;
+        private int GIFT_CHANCE_3 = -1;        
         private int LOW_CHANCE = -1;
         private int MID_CHANCE = -1;
         private int HI_CHANCE = -1;
@@ -43,8 +42,7 @@ namespace catGifts
             this.THRESHOLD_3 = config.THRESHOLD_3;
             this.GIFT_CHANCE_1 = config.GIFT_CHANCE_1;
             this.GIFT_CHANCE_2 = config.GIFT_CHANCE_2;
-            this.GIFT_CHANCE_3 = config.GIFT_CHANCE_3;
-            this.FARMHAND_CHANCE = config.FARMHAND_CHANCE;
+            this.GIFT_CHANCE_3 = config.GIFT_CHANCE_3;            
             this.LOW_CHANCE = config.LOW_CHANCE;
             this.MID_CHANCE = config.MID_CHANCE;
             this.HI_CHANCE = config.HI_CHANCE;
@@ -350,12 +348,6 @@ namespace catGifts
                     giftChance = GIFT_CHANCE_2;
                 else if (catFriendship >= THRESHOLD_2 && catFriendship <= THRESHOLD_3)
                     giftChance = GIFT_CHANCE_3;
-
-                // if the player is a farmhand, relationship with the cat is broken. Use predetermined chance for farmhands
-                if (!Game1.player.IsMainPlayer) {
-                    //this.Monitor.Log("Player is a farmhand.");
-                    giftChance = FARMHAND_CHANCE;
-                }
 
                 // Reset gifts given counter, max gifts per week -> 3
                 if (Game1.dayOfMonth % 7 == 0)
