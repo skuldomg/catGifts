@@ -78,6 +78,8 @@ namespace catGifts
             }
             if (this.MAX_WEEKLY_GIFTS < 0 || this.MAX_WEEKLY_GIFTS > 7)
                 this.MAX_WEEKLY_GIFTS = 3;
+            if (this.FARMHAND_CHANCE < 0 || this.FARMHAND_CHANCE > 100)
+                this.FARMHAND_CHANCE = 30;
 
             // Initialize gift lists
             lowGifts = new List<int>();
