@@ -279,8 +279,8 @@ namespace catGifts
 
         // If the cat gave a gift, warp him next to it the first time the player enters the farm
         public void Warped(object sender, EventArgs e)
-        {                       
-            if(Game1.currentLocation is Farm && giftToday && !warpedToday)
+        {
+            if (Game1.currentLocation is Farm && giftToday && !warpedToday)
             {
                 StardewValley.Characters.Pet theCat = null;
 
@@ -304,8 +304,11 @@ namespace catGifts
 
                     // Warp cat
                     theCat.Position = new Vector2(x+1, y+2) * 64f;
+                    
                     this.Monitor.Log("Warped him.");
                     warpedToday = true;
+
+                    Game1.playSound("cat");
                 }
                 else
                     this.Monitor.Log("Didn't find the cat.");
