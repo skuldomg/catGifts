@@ -302,6 +302,8 @@ namespace catGifts
                     theCat.Position = new Vector2(x+1, y+2) * 64f;
                     //this.Monitor.Log("Warped him.");
                     warpedToday = true;
+
+                    Game1.playSound("cat");
                 }
                 //else
                     //this.Monitor.Log("Didn't find the cat.");
