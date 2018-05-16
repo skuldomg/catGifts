@@ -98,8 +98,7 @@ namespace catGifts
                     case 168:
                     case 169:
                     case 171:
-                    case 172:
-                    case 309:
+                    case 172:                    
                     case 310:
                     case 311:
                     case 344:
