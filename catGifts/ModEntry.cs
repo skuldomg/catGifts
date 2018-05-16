@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.TerrainFeatures;
 
 namespace catGifts
 {
@@ -18,6 +19,7 @@ namespace catGifts
         private bool giftToday = false;
         private bool warpedToday = false;
         private int giftId = 0;
+        private Vector2 tile = new Vector2(-1, -1);
 
         // Configuration options
         private int THRESHOLD_1 = -1;
@@ -51,7 +53,7 @@ namespace catGifts
             this.MAX_WEEKLY_GIFTS = config.MAX_WEEKLY_GIFTS;
 
             // Safety checks
-            if(this.THRESHOLD_1 > this.THRESHOLD_2 || this.THRESHOLD_1 > this.THRESHOLD_3 || this.THRESHOLD_2 > this.THRESHOLD_3 || this.THRESHOLD_1 < 0 || this.THRESHOLD_1 > 1000 ||
+            if (this.THRESHOLD_1 > this.THRESHOLD_2 || this.THRESHOLD_1 > this.THRESHOLD_3 || this.THRESHOLD_2 > this.THRESHOLD_3 || this.THRESHOLD_1 < 0 || this.THRESHOLD_1 > 1000 ||
                 this.THRESHOLD_2 < 0 || this.THRESHOLD_2 > 1000 || this.THRESHOLD_3 < 0 || this.THRESHOLD_3 > 1000)
             {
                 this.THRESHOLD_1 = 300;
@@ -70,7 +72,7 @@ namespace catGifts
                 this.MID_CHANCE = 40;
             if (this.HI_CHANCE < 0 || this.HI_CHANCE > 100)
                 this.HI_CHANCE = 40;
-            if(LOW_CHANCE + MID_CHANCE + HI_CHANCE != 100)
+            if (LOW_CHANCE + MID_CHANCE + HI_CHANCE != 100)
             {
                 LOW_CHANCE = 40;
                 MID_CHANCE = 40;
@@ -86,9 +88,9 @@ namespace catGifts
             midGifts = new List<int>();
             hiGifts = new List<int>();
 
-            for(int i=0; i<803; i++)
+            for (int i = 0; i < 803; i++)
             {
-                switch(i)
+                switch (i)
                 {
                     case 152:
                     case 153:
@@ -96,16 +98,16 @@ namespace catGifts
                     case 168:
                     case 169:
                     case 171:
-                    case 172:                    
+                    case 172:
                     case 309:
                     case 310:
-                    case 311:                    
+                    case 311:
                     case 344:
                     case 372:
                     case 382:
                     case 388:
-                    case 390:                                                            
-                    case 404:                                                                                
+                    case 390:
+                    case 404:
                     case 684:
                     case 685:
                     case 702:
@@ -120,7 +122,7 @@ namespace catGifts
 
                     case 296: // Spring
                     case 399: // Spring
-                        if(Game1.currentSeason.Equals("Spring"))
+                        if (Game1.currentSeason.Equals("Spring"))
                             lowGifts.Add(i);
                         break;
 
@@ -141,9 +143,9 @@ namespace catGifts
                         if (Game1.currentSeason.Equals("Winter"))
                             lowGifts.Add(i);
                         break;
-                                            
+
                     case 78:
-                    case 129:                    
+                    case 129:
                     case 131:
                     case 132:
                     case 142:
@@ -155,13 +157,13 @@ namespace catGifts
                     case 180:
                     case 182:
                     case 340:
-                    case 393:                    
+                    case 393:
                     case 420:
                     case 421:
-                    case 422:                                        
+                    case 422:
                     case 440:
                     case 442:
-                    case 444:                    
+                    case 444:
                     case 535:
                     case 634:
                     case 635:
@@ -172,7 +174,7 @@ namespace catGifts
                     case 717:
                     case 720:
                     case 723:
-                    case 774:                    
+                    case 774:
                         midGifts.Add(i);
                         break;
 
@@ -190,7 +192,7 @@ namespace catGifts
                     case 477: // Spring
                     case 478: // Spring
                     case 495: // Spring
-                        if(Game1.currentSeason.Equals("Spring"))
+                        if (Game1.currentSeason.Equals("Spring"))
                             midGifts.Add(i);
                         break;
 
@@ -257,7 +259,7 @@ namespace catGifts
                     case 228:
                     case 242:
                     case 305:
-                    case 446:                                        
+                    case 446:
                         hiGifts.Add(i);
                         break;
 
@@ -272,46 +274,70 @@ namespace catGifts
                         break;
                 }
             }
-                        
+
             TimeEvents.AfterDayStarted += this.AfterDayStarted;
             PlayerEvents.Warped += this.Warped;
         }
 
-        // If the cat gave a gift, warp him next to it the first time the player enters the farm
+        // If the cat gave a gift, warp him next to it the first time the player enters the farm        
         public void Warped(object sender, EventArgs e)
         {
             if (Game1.currentLocation is Farm && giftToday && !warpedToday)
             {
-                StardewValley.Characters.Pet theCat = null;
+                StardewValley.Characters.Pet thePet = null;
 
                 foreach (NPC pet in Game1.getLocationFromName("Farm").getCharacters())
                 {
-                    if (pet is StardewValley.Characters.Cat)
+                    if (pet is StardewValley.Characters.Cat || pet is StardewValley.Characters.Dog)
                     {
-                        this.Monitor.Log("Found cat for warping.");                        
-                        theCat = (StardewValley.Characters.Pet)pet;
+                        //this.Monitor.Log("Found pet for warping.");
+                        thePet = (StardewValley.Characters.Pet)pet;
                     }
                 }
 
-                if (theCat != null)
+                if (thePet != null)
                 {
-                    float x = Game1.player.Position.X / 64;
-                    float y = Game1.player.Position.Y / 64;
+                    if (thePet is StardewValley.Characters.Cat) {
+                        float x = Game1.player.Position.X / 64;
+                        float y = Game1.player.Position.Y / 64;
 
-                    // Spawn gift
-                    Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
-                    this.Monitor.Log("Object dropped!");                    
+                        // Spawn gift
+                        Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
+                        //this.Monitor.Log("Object dropped!");
 
-                    // Warp cat
-                    theCat.Position = new Vector2(x+1, y+2) * 64f;
-                    
-                    this.Monitor.Log("Warped him.");
-                    warpedToday = true;
+                        // Warp cat
+                        thePet.Position = new Vector2(x + 1, y + 2) * 64f;
 
-                    Game1.playSound("cat");
+                        //this.Monitor.Log("Warped him.");
+                        warpedToday = true;
+
+                        Game1.playSound("cat");
+                    }
+
+                    if (thePet is StardewValley.Characters.Dog)
+                    {
+                        // Spawn gift
+                        Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(tile.X, tile.Y) * 64f, Game1.viewport, true, (Farmer)null);
+                        //this.Monitor.Log("Object dropped!");
+
+                        // Convert drop location to dirt (if we would do this beforehand, spawn would be impeded)                        
+                        Game1.getLocationFromName("Farm").terrainFeatures[tile] = new HoeDirt();
+
+                        // Warp dog                        
+                        Vector2 warpPos = this.FindSafePosition(tile);
+
+                        // If we find a safe location near the treasure, warp the pet
+                        if (warpPos != tile)
+                            thePet.Position = warpPos * 64f;
+
+                        //this.Monitor.Log("Warped him ... most likely, to "+warpPos.X+"/"+warpPos.Y);
+                        warpedToday = true;
+
+                        Game1.playSound("dog_bark");
+                    }
                 }
-                else
-                    this.Monitor.Log("Didn't find the cat.");
+                //else
+                    //this.Monitor.Log("Didn't find the pet.");
             }
         }
 
@@ -319,31 +345,45 @@ namespace catGifts
         public void AfterDayStarted(object sender, EventArgs e)
         {
             bool hasCat = false;
+            bool hasDog = false;
             StardewValley.Characters.Pet theCat = null;
+            StardewValley.Characters.Pet theDog = null;
             warpedToday = false;
 
-            // Look for a cat
-            foreach(NPC pet in Game1.getLocationFromName("Farm").getCharacters())
+            // Look for a cat or a dog
+            foreach (NPC pet in Game1.getLocationFromName("Farm").getCharacters())
             {
-                if(pet is StardewValley.Characters.Cat)
+                if (pet is StardewValley.Characters.Cat)
                 {
-                    this.Monitor.Log("Player has a cat (on farm).");
+                    //this.Monitor.Log("Player has a cat (on farm).");
                     hasCat = true;
                     theCat = (StardewValley.Characters.Pet)pet;
                 }
-            }
-            foreach(NPC pet in Game1.getLocationFromName("FarmHouse").getCharacters())
-            {
-                if(pet is StardewValley.Characters.Cat)
+                if (pet is StardewValley.Characters.Dog)
                 {
-                    this.Monitor.Log("Player has a cat (in house).");
+                    //this.Monitor.Log("Player has a dog (on farm).");
+                    hasDog = true;
+                    theDog = (StardewValley.Characters.Pet)pet;
+                }
+            }
+            foreach (NPC pet in Game1.getLocationFromName("FarmHouse").getCharacters())
+            {
+                if (pet is StardewValley.Characters.Cat)
+                {
+                    //this.Monitor.Log("Player has a cat (in house).");
                     hasCat = true;
                     theCat = (StardewValley.Characters.Pet)pet;
+                }
+                if (pet is StardewValley.Characters.Dog)
+                {
+                    //this.Monitor.Log("Player has a dog (in house).");
+                    hasDog = true;
+                    theDog = (StardewValley.Characters.Pet)pet;
                 }
             }
 
             if (hasCat)
-            {                
+            {
                 int catFriendship = theCat.friendshipTowardFarmer;
 
                 // Determine gift chance
@@ -358,7 +398,7 @@ namespace catGifts
 
                 // if the player is a farmhand, relationship with the cat is broken. Use predetermined chance for farmhands
                 if (!Game1.player.IsMainPlayer) {
-                    this.Monitor.Log("Player is a farmhand.");
+                    //this.Monitor.Log("Player is a farmhand.");
                     giftChance = FARMHAND_CHANCE;
                 }
 
@@ -370,17 +410,17 @@ namespace catGifts
 
                 giftId = 0;
 
-                this.Monitor.Log("Did the cat give a gift?\nFriendship: " + catFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
+                //this.Monitor.Log("Did the cat give a gift?\nFriendship: " + catFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
 
                 // Draw a random gift ID. For clarity we do this in multiple steps
                 // Step 1: Determine if cat gives a gift at all                                
                 int random = Game1.random.Next(0, 100);
 
-                this.Monitor.Log("Random number: " + random +" --- must be larger than "+(100 - giftChance));
+                //this.Monitor.Log("Random number: " + random + " --- must be larger than " + (100 - giftChance));
 
                 if (random > (100 - giftChance) && !Game1.isRaining && giftsGiven <= MAX_WEEKLY_GIFTS)
                 {
-                    this.Monitor.Log("Cat will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
+                    //this.Monitor.Log("Cat will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
 
                     // Step 2: Determine quality: low = mid > high -> 40% / 40% / 20%
                     int rand = Game1.random.Next(0, 100);
@@ -388,33 +428,159 @@ namespace catGifts
                     // Pick a random item
                     if (rand <= LOW_CHANCE)
                     {
-                        this.Monitor.Log("Low quality");
+                        //this.Monitor.Log("Low quality");
                         giftId = lowGifts.ElementAt(Game1.random.Next(lowGifts.Count - 1));
                         highTierYesterday = false;
                     }
                     else if (rand > LOW_CHANCE && rand <= (LOW_CHANCE + MID_CHANCE))
                     {
-                        this.Monitor.Log("Medium quality");
+                        //this.Monitor.Log("Medium quality");
                         giftId = midGifts.ElementAt(Game1.random.Next(midGifts.Count - 1));
                         highTierYesterday = false;
                     }
                     else if (rand > (100 - HI_CHANCE) && !highTierYesterday)
                     {
-                        this.Monitor.Log("High quality! :3");
+                        //this.Monitor.Log("High quality! :3");
                         giftId = hiGifts.ElementAt(Game1.random.Next(hiGifts.Count - 1));
                         highTierYesterday = true;
-                    }                    
+                    }
 
                     giftsGiven++;
                     giftToday = true;
                 }
-                else
-                    this.Monitor.Log("No gift for you. You come back 10 years.");
+                //else
+                    //this.Monitor.Log("No gift for you. You come back 10 years.");
             }
-            else
-                this.Monitor.Log("Player doesn't have a cat.");
+            else if (hasDog)
+            {
+                GameLocation theFarm = Game1.getLocationFromName("Farm");
+                tile = theFarm.getRandomTile();
+
+                // Find a free tile to generate dirt                
+                while (!theFarm.isTileLocationTotallyClearAndPlaceable(tile)) {
+                    //this.Monitor.Log("Searching for a clear tile...");
+                    tile = theFarm.getRandomTile();
+                    //this.Monitor.Log("Checking tile " + tile.X + "/" + tile.Y + " ...");
+                }
+
+                //this.Monitor.Log("Found a clear tile at " + tile.X + "/" + tile.Y);
+
+                // Spawn gift at its location
+                int dogFriendship = theDog.friendshipTowardFarmer;
+
+                // Determine gift chance
+                int giftChance = 0;
+
+                if (dogFriendship < THRESHOLD_1)
+                    giftChance = GIFT_CHANCE_1;
+                else if (dogFriendship >= THRESHOLD_1 && dogFriendship < THRESHOLD_2)
+                    giftChance = GIFT_CHANCE_2;
+                else if (dogFriendship >= THRESHOLD_2 && dogFriendship <= THRESHOLD_3)
+                    giftChance = GIFT_CHANCE_3;
+
+                // if the player is a farmhand, relationship with the dog is broken. Use predetermined chance for farmhands
+                if (!Game1.player.IsMainPlayer)
+                {
+                    //this.Monitor.Log("Player is a farmhand.");
+                    giftChance = FARMHAND_CHANCE;
+                }
+
+                // Reset gifts given counter, max gifts per week -> 3
+                if (Game1.dayOfMonth % 7 == 0)
+                    giftsGiven = 0;
+
+                giftToday = false;
+
+                giftId = 0;
+
+                //this.Monitor.Log("Did the dog give a gift?\nFriendship: " + dogFriendship + "\nGift chance: " + giftChance + "\nGifts received this week: " + giftsGiven);
+
+                // Draw a random gift ID. For clarity we do this in multiple steps
+                // Step 1: Determine if cat gives a gift at all                                
+                int random = Game1.random.Next(0, 100);
+
+                //this.Monitor.Log("Random number: " + random + " --- must be larger than " + (100 - giftChance));
+
+                if (random > (100 - giftChance) && !Game1.isRaining && giftsGiven <= MAX_WEEKLY_GIFTS)
+                {
+                    //this.Monitor.Log("Dog will give a gift ... maybe :3 (may still not happen if this is the second consecutive high tier gift)");
+
+                    // Step 2: Determine quality: low = mid > high -> 40% / 40% / 20%
+                    int rand = Game1.random.Next(0, 100);
+
+                    // Pick a random item
+                    if (rand <= LOW_CHANCE)
+                    {
+                        //this.Monitor.Log("Low quality");
+                        giftId = lowGifts.ElementAt(Game1.random.Next(lowGifts.Count - 1));
+                        highTierYesterday = false;
+                    }
+                    else if (rand > LOW_CHANCE && rand <= (LOW_CHANCE + MID_CHANCE))
+                    {
+                        //this.Monitor.Log("Medium quality");
+                        giftId = midGifts.ElementAt(Game1.random.Next(midGifts.Count - 1));
+                        highTierYesterday = false;
+                    }
+                    else if (rand > (100 - HI_CHANCE) && !highTierYesterday)
+                    {
+                        //this.Monitor.Log("High quality! :3");
+                        giftId = hiGifts.ElementAt(Game1.random.Next(hiGifts.Count - 1));
+                        highTierYesterday = true;
+                    }
+
+                    giftsGiven++;
+                    giftToday = true;
+                }
+                //else
+                    //this.Monitor.Log("No gift for you. You come back 10 years.");
+            }
+            //else
+                //this.Monitor.Log("Player doesn't have a pet.");
 
         }
 
+        private Vector2 FindSafePosition(Vector2 pos)
+        {
+            // Find a clear location around the specified position
+            GameLocation theFarm = Game1.getLocationFromName("Farm");
+
+            // Check the 5 surrounding circles
+            for (int i = 1; i <= 5; i++)
+            {
+                // Check above
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X, (int)pos.Y - i))// (new xTile.Dimensions.Location((int)pos.X, (int)pos.Y - i), Game1.viewport))
+                    return new Vector2(pos.X, pos.Y - i);
+
+                // Check below
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X, (int)pos.Y + i)) //(new xTile.Dimensions.Location((int)pos.X, (int)pos.Y + i), Game1.viewport))
+                    return new Vector2(pos.X, pos.Y + i);
+
+                // Check left
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X - i, (int)pos.Y)) //(new xTile.Dimensions.Location((int)pos.X - i, (int)pos.Y), Game1.viewport))
+                    return new Vector2(pos.X - i, pos.Y);
+
+                // Check right
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X + i, (int)pos.Y)) //(new xTile.Dimensions.Location((int)pos.X + i, (int)pos.Y), Game1.viewport))
+                    return new Vector2(pos.X + i, pos.Y);
+
+                // Check top right
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X + i, (int)pos.Y - i)) //(new xTile.Dimensions.Location((int)pos.X + i, (int)pos.Y - i), Game1.viewport))
+                    return new Vector2(pos.X + i, pos.Y - i);
+
+                // Check top left
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X - i, (int)pos.Y - i)) //(new xTile.Dimensions.Location((int)pos.X - i, (int)pos.Y - i), Game1.viewport))
+                    return new Vector2(pos.X - i, pos.Y - i);
+
+                // Check below right
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X + i, (int)pos.Y + i)) //(new xTile.Dimensions.Location((int)pos.X + i, (int)pos.Y + i), Game1.viewport))
+                    return new Vector2(pos.X + i, pos.Y + i);
+
+                // Check below left
+                if (theFarm.isTileLocationTotallyClearAndPlaceable((int)pos.X - i, (int)pos.Y + i)) //(new xTile.Dimensions.Location((int)pos.X - i, (int)pos.Y + i), Game1.viewport))
+                    return new Vector2(pos.X - i, pos.Y + i);
+            }
+            //this.Monitor.Log("Didn't find a safe position near the treasure.");
+            return pos;
+        }
     }
 }
