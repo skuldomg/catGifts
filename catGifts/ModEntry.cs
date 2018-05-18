@@ -305,7 +305,20 @@ namespace catGifts
                         //this.Monitor.Log("Object dropped!");
 
                         // Warp cat
-                        thePet.Position = new Vector2(x + 1, y + 2) * 64f;
+                        // Check if field is free
+                        Vector2 warpPos = new Vector2(x + 1, y + 2) * 64f;
+                        Vector2 safePos = new Vector2(x + 1, y + 2) * 64f;
+
+                        // If field is free, warp cat there
+                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos))
+                            thePet.Position = new Vector2(x + 1, y + 2) * 64f;
+                        else
+                        {
+                            // Otherwise, find a nearby free location. If we find one, warp the cat there. Otherwise, just don't warp.
+                            safePos = this.FindSafePosition(warpPos);
+                            if (safePos != warpPos)
+                                thePet.Position = safePos * 64f;
+                        }
 
                         //this.Monitor.Log("Warped him.");
                         warpedToday = true;
