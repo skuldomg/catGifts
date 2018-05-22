@@ -295,21 +295,24 @@ namespace catGifts
                 if (thePet != null)
                 {
                     if (thePet is StardewValley.Characters.Cat) {
-                        float x = Game1.player.Position.X / 64;
-                        float y = Game1.player.Position.Y / 64;
+                        int x = (int)Game1.player.Position.X / 64;
+                        int y = (int)Game1.player.Position.Y / 64;
 
                         // Spawn gift
+                        // TODO: Remove previous object if there is one
                         Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
                         //this.Monitor.Log("Object dropped!");
 
                         // Warp cat
                         // Check if field is free
-                        Vector2 warpPos = new Vector2(x + 1, y + 2) * 64f;
-                        Vector2 safePos = new Vector2(x + 1, y + 2) * 64f;
+                        Vector2 warpPos = new Vector2(x + 1, y + 2);
+                        Vector2 safePos = new Vector2(x + 1, y + 2);
 
                         // If field is free, warp cat there
-                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos))
-                            thePet.Position = new Vector2(x + 1, y + 2) * 64f;
+                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos)) {
+                            //this.Monitor.Log(warpPos.X + "/" + warpPos.Y + " is free, warping cat there");
+                            thePet.Position = warpPos * 64f;
+                        }
                         else
                         {
                             // Otherwise, find a nearby free location. If we find one, warp the cat there. Otherwise, just don't warp.
@@ -318,7 +321,7 @@ namespace catGifts
                                 thePet.Position = safePos * 64f;
                         }
 
-                        //this.Monitor.Log("Warped him.");
+                       // this.Monitor.Log("Warped him.");
                         warpedToday = true;
 
                         Game1.playSound("cat");
@@ -327,6 +330,7 @@ namespace catGifts
                     if (thePet is StardewValley.Characters.Dog)
                     {
                         // Spawn gift
+                        // TODO: Remove previous object if there is one
                         Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(tile.X, tile.Y) * 64f, Game1.viewport, true, (Farmer)null);
                         //this.Monitor.Log("Object dropped!");
 
