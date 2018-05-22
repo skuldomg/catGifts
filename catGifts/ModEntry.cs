@@ -20,6 +20,7 @@ namespace catGifts
         private bool warpedToday = false;
         private int giftId = 0;
         private Vector2 tile = new Vector2(-1, -1);
+        private StardewValley.Characters.Pet thePet = null;
 
         // Configuration options
         private int THRESHOLD_1 = -1;
@@ -279,19 +280,8 @@ namespace catGifts
         // If the cat gave a gift, warp him next to it the first time the player enters the farm        
         public void Warped(object sender, EventArgs e)
         {
-           /* this.Monitor.Log("NPCs present:");
-            foreach (NPC npc in Game1.currentLocation.characters)
-            {
-                this.Monitor.Log(npc.Name);
-            }
-
-            if (Game1.currentLocation.characters.Contains(Game1.getCharacterFromName("Dusty", true)))
-            */
-
             if (Game1.currentLocation is Farm && giftToday && !warpedToday)
             {
-                StardewValley.Characters.Pet thePet = null;
-
                 foreach (NPC pet in Game1.getLocationFromName("Farm").getCharacters())
                 {
                     if (pet is StardewValley.Characters.Cat || pet is StardewValley.Characters.Dog)
@@ -304,59 +294,50 @@ namespace catGifts
                 if (thePet != null)
                 {
                     if (thePet is StardewValley.Characters.Cat) {
-                        int x = (int)Game1.player.Position.X / 64;
-                        int y = (int)Game1.player.Position.Y / 64;
 
-                        // Spawn gift                        
+                        // Have a chance of Dusty digging up something instead of the cat
+                        if (Game1.currentLocation.characters.Contains(Game1.getCharacterFromName("Dusty", true)) && Game1.random.Next(1, 10) > 8)
+                            this.DogSpawn(null, Game1.getCharacterFromName("Dusty", true));
+                        else {
+                            int x = (int)Game1.player.Position.X / 64;
+                            int y = (int)Game1.player.Position.Y / 64;
 
-                        Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
-                        //this.Monitor.Log("Object dropped!");
+                            // Spawn gift                                                
+                            // TODO: Remove old gift
+                            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);                        
 
-                        // Warp cat
-                        // Check if field is free
-                        Vector2 warpPos = new Vector2(x + 1, y + 2);
-                        Vector2 safePos = new Vector2(x + 1, y + 2);
+                            // Warp cat
+                            // Check if field is free
+                            Vector2 warpPos = new Vector2(x + 1, y + 2);
+                            Vector2 safePos = new Vector2(x + 1, y + 2);
 
-                        // If field is free, warp cat there
-                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceableIgnoreFloors(warpPos)) {
-                            //this.Monitor.Log(warpPos.X + "/" + warpPos.Y + " is free, warping cat there");
-                            thePet.Position = warpPos * 64f;
+                            // If field is free, warp cat there
+                            if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceableIgnoreFloors(warpPos)) {
+                                //this.Monitor.Log(warpPos.X + "/" + warpPos.Y + " is free, warping cat there");
+                                thePet.Position = warpPos * 64f;
+                            }
+                            else
+                            {
+                                // Otherwise, find a nearby free location. If we find one, warp the cat there. Otherwise, just don't warp.
+                                safePos = this.FindSafePosition(warpPos);
+                                if (safePos != warpPos)
+                                    thePet.Position = safePos * 64f;
+                            }
+
+                           // this.Monitor.Log("Warped him.");
+                            warpedToday = true;
+
+                            Game1.playSound("cat");
                         }
-                        else
-                        {
-                            // Otherwise, find a nearby free location. If we find one, warp the cat there. Otherwise, just don't warp.
-                            safePos = this.FindSafePosition(warpPos);
-                            if (safePos != warpPos)
-                                thePet.Position = safePos * 64f;
-                        }
-
-                       // this.Monitor.Log("Warped him.");
-                        warpedToday = true;
-
-                        Game1.playSound("cat");
                     }
 
                     if (thePet is StardewValley.Characters.Dog)
                     {
-                        // Spawn gift
-                        // TODO: Remove previous object if there is one
-                        Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(tile.X, tile.Y) * 64f, Game1.viewport, true, (Farmer)null);
-                        //this.Monitor.Log("Object dropped!");
-
-                        // Convert drop location to dirt (if we would do this beforehand, spawn would be impeded)                        
-                        Game1.getLocationFromName("Farm").terrainFeatures[tile] = new HoeDirt();
-
-                        // Warp dog                        
-                        Vector2 warpPos = this.FindSafePosition(tile);
-
-                        // If we find a safe location near the treasure, warp the pet
-                        if (warpPos != tile)
-                            thePet.Position = warpPos * 64f;
-
-                        //this.Monitor.Log("Warped him ... most likely, to "+warpPos.X+"/"+warpPos.Y);
-                        warpedToday = true;
-
-                        Game1.playSound("dog_bark");
+                        // Have a chance of Dusty digging something up instead of the dog
+                        if (Game1.currentLocation.characters.Contains(Game1.getCharacterFromName("Dusty", true)) && Game1.random.Next(1, 10) > 8)
+                            this.DogSpawn(null, Game1.getCharacterFromName("Dusty", true));
+                        else
+                            this.DogSpawn(thePet, null);
                     }
                 }
                 //else
@@ -372,6 +353,16 @@ namespace catGifts
             StardewValley.Characters.Pet theCat = null;
             StardewValley.Characters.Pet theDog = null;
             warpedToday = false;
+            GameLocation theFarm = Game1.getLocationFromName("Farm");
+
+            tile = theFarm.getRandomTile();
+            // Find a free tile to generate dirt                
+            while (!theFarm.isTileLocationTotallyClearAndPlaceable(tile))
+            {
+                //this.Monitor.Log("Searching for a clear tile...");
+                tile = theFarm.getRandomTile();
+                //this.Monitor.Log("Checking tile " + tile.X + "/" + tile.Y + " ...");
+            }
 
             // Look for a cat or a dog
             foreach (NPC pet in Game1.getLocationFromName("Farm").getCharacters())
@@ -476,16 +467,6 @@ namespace catGifts
             }
             else if (hasDog)
             {
-                GameLocation theFarm = Game1.getLocationFromName("Farm");
-                tile = theFarm.getRandomTile();
-
-                // Find a free tile to generate dirt                
-                while (!theFarm.isTileLocationTotallyClearAndPlaceable(tile)) {
-                    //this.Monitor.Log("Searching for a clear tile...");
-                    tile = theFarm.getRandomTile();
-                    //this.Monitor.Log("Checking tile " + tile.X + "/" + tile.Y + " ...");
-                }
-
                 //this.Monitor.Log("Found a clear tile at " + tile.X + "/" + tile.Y);
 
                 // Spawn gift at its location
@@ -604,6 +585,34 @@ namespace catGifts
             }
             //this.Monitor.Log("Didn't find a safe position near the treasure.");
             return pos;
+        }
+
+        private void DogSpawn(StardewValley.Characters.Pet thePet = null, NPC theNPC = null)
+        {
+            // Spawn gift
+            // TODO: Remove previous object if there is one
+            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(tile.X, tile.Y) * 64f, Game1.viewport, true, (Farmer)null);
+            //this.Monitor.Log("Object dropped!");
+
+            // Convert drop location to dirt (if we would do this beforehand, spawn would be impeded)                        
+            Game1.getLocationFromName("Farm").terrainFeatures[tile] = new HoeDirt();
+
+            // Warp dog                        
+            Vector2 warpPos = this.FindSafePosition(tile);
+
+            // If we find a safe location near the treasure, warp the pet
+            if (warpPos != tile)
+            {
+                if (theNPC == null)
+                    thePet.Position = warpPos * 64f;
+                else if (thePet == null)
+                    theNPC.Position = warpPos * 64f;             
+            }
+
+            //this.Monitor.Log("Warped him ... most likely, to "+warpPos.X+"/"+warpPos.Y);
+            warpedToday = true;
+
+            Game1.playSound("dog_bark");
         }
     }
 }
