@@ -305,7 +305,7 @@ namespace catGifts
                         Vector2 safePos = new Vector2(x + 1, y + 2);
 
                         // If field is free, warp cat there
-                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos))
+                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceableIgnoreFloors(warpPos))
                             thePet.Position = warpPos * 64f;
                         else
                         {
