@@ -279,6 +279,15 @@ namespace catGifts
         // If the cat gave a gift, warp him next to it the first time the player enters the farm        
         public void Warped(object sender, EventArgs e)
         {
+           /* this.Monitor.Log("NPCs present:");
+            foreach (NPC npc in Game1.currentLocation.characters)
+            {
+                this.Monitor.Log(npc.Name);
+            }
+
+            if (Game1.currentLocation.characters.Contains(Game1.getCharacterFromName("Dusty", true)))
+            */
+
             if (Game1.currentLocation is Farm && giftToday && !warpedToday)
             {
                 StardewValley.Characters.Pet thePet = null;
@@ -298,8 +307,8 @@ namespace catGifts
                         int x = (int)Game1.player.Position.X / 64;
                         int y = (int)Game1.player.Position.Y / 64;
 
-                        // Spawn gift
-                        // TODO: Remove previous object if there is one
+                        // Spawn gift                        
+
                         Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);
                         //this.Monitor.Log("Object dropped!");
 
@@ -309,7 +318,7 @@ namespace catGifts
                         Vector2 safePos = new Vector2(x + 1, y + 2);
 
                         // If field is free, warp cat there
-                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos)) {
+                        if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceableIgnoreFloors(warpPos)) {
                             //this.Monitor.Log(warpPos.X + "/" + warpPos.Y + " is free, warping cat there");
                             thePet.Position = warpPos * 64f;
                         }
