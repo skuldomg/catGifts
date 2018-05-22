@@ -292,8 +292,8 @@ namespace catGifts
                 {
                     if(thePet is StardewValley.Characters.Cat)
                     {
-                        float x = Game1.player.Position.X / 64;
-                        float y = Game1.player.Position.Y / 64;
+                        int x = (int)Game1.player.Position.X / 64;
+                        int y = (int)Game1.player.Position.Y / 64;
 
                         // Spawn gift
                         Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true);
@@ -301,12 +301,12 @@ namespace catGifts
 
                         // Warp cat
                         // Check if field is free
-                        Vector2 warpPos = new Vector2(x + 1, y + 2) * 64f;
-                        Vector2 safePos = new Vector2(x + 1, y + 2) * 64f;
+                        Vector2 warpPos = new Vector2(x + 1, y + 2);
+                        Vector2 safePos = new Vector2(x + 1, y + 2);
 
                         // If field is free, warp cat there
                         if (Game1.getLocationFromName("Farm").isTileLocationTotallyClearAndPlaceable(warpPos))
-                            thePet.Position = new Vector2(x + 1, y + 2) * 64f;
+                            thePet.Position = warpPos * 64f;
                         else
                         {
                             // Otherwise, find a nearby free location. If we find one, warp the cat there. Otherwise, just don't warp.
