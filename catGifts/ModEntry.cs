@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -21,6 +22,8 @@ namespace catGifts
         private int giftId = 0;
         private Vector2 tile = new Vector2(-1, -1);
         private StardewValley.Characters.Pet thePet = null;
+        public static bool msgDisplayed = false;
+        public static bool isCat = true;
 
         // Configuration options
         private int THRESHOLD_1 = -1;
@@ -38,8 +41,9 @@ namespace catGifts
         // TODO: Add custom items, ie. dead bird, dead mouse, other trash, ...
         public override void Entry(IModHelper helper)
         {
-            // Initialize config fields
+            // Initialize config fields and load cat/dog icons
             ModConfig config = helper.ReadConfig<ModConfig>();
+            helper.Content.AssetEditors.Add(new IconEditor(helper));
 
             this.THRESHOLD_1 = config.THRESHOLD_1;
             this.THRESHOLD_2 = config.THRESHOLD_2;
@@ -275,6 +279,16 @@ namespace catGifts
 
             TimeEvents.AfterDayStarted += this.AfterDayStarted;
             PlayerEvents.Warped += this.Warped;
+            TimeEvents.TimeOfDayChanged += TimeChanged;            
+        }
+
+        public void TimeChanged(object sender, EventArgs e)
+        {
+            // Replace achievement star back to vanilla texture
+            if(Game1.hudMessages.Count == 0 && msgDisplayed) { 
+                msgDisplayed = false;
+                Helper.Content.InvalidateCache(@"LooseSprites\Cursors.xnb");
+            }
         }
 
         // If the cat gave a gift, warp him next to it the first time the player enters the farm        
@@ -339,6 +353,18 @@ namespace catGifts
                         else
                             this.DogSpawn(thePet, null);
                     }
+
+                    String dog = "";
+
+                    if (thePet is StardewValley.Characters.Dog) { 
+                        dog = " Search your farm carefully to find it!";
+                        isCat = false;
+                    }
+
+                    msgDisplayed = true;                    
+                    Helper.Content.InvalidateCache(@"LooseSprites\Cursors.xnb");                    
+                    HUDMessage msg = new HUDMessage(thePet.Name + " brought you a gift." + dog, 1);
+                    Game1.addHUDMessage(msg);
                 }
                 //else
                     //this.Monitor.Log("Didn't find the pet.");
@@ -609,7 +635,7 @@ namespace catGifts
                     theNPC.Position = warpPos * 64f;             
             }
 
-            //this.Monitor.Log("Warped him ... most likely, to "+warpPos.X+"/"+warpPos.Y);
+            this.Monitor.Log("Warped him ... most likely, to "+warpPos.X+"/"+warpPos.Y);
             warpedToday = true;
 
             Game1.playSound("dog_bark");
