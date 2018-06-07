@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Network;
 using StardewValley.TerrainFeatures;
 
 namespace catGifts
@@ -317,8 +318,20 @@ namespace catGifts
                             int y = (int)Game1.player.Position.Y / 64;
 
                             // Spawn gift                                                
-                            // TODO: Remove old gift
-                            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(x, y + 1) * 64f, Game1.viewport, true, (Farmer)null);                        
+
+                            // Remove old gift if there's still one on the floor
+                            OverlaidDictionary<Vector2, StardewValley.Object> obs = Game1.getLocationFromName("Farm").Objects;
+                            Vector2 spawnPos = new Vector2(x, y + 1);
+
+                            for(int i=0; i<obs.Count(); i++)
+                            {
+                                Vector2 currentPos = obs.Keys.ElementAt(i);
+
+                                if (currentPos == spawnPos)                                    
+                                    obs.Remove(obs.Keys.ElementAt(i));                                
+                            }
+
+                            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), spawnPos * 64f, Game1.viewport, true, (Farmer)null);                        
 
                             // Warp cat
                             // Check if field is free
@@ -615,9 +628,21 @@ namespace catGifts
 
         private void DogSpawn(StardewValley.Characters.Pet thePet = null, NPC theNPC = null)
         {
-            // Spawn gift
-            // TODO: Remove previous object if there is one
-            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), new Vector2(tile.X, tile.Y) * 64f, Game1.viewport, true, (Farmer)null);
+            // Spawn gift            
+
+            // Remove old gift if there's still one on the floor
+            OverlaidDictionary<Vector2, StardewValley.Object> obs = Game1.getLocationFromName("Farm").Objects;
+            Vector2 spawnPos = new Vector2(tile.X, tile.Y);
+
+            for (int i = 0; i < obs.Count(); i++)
+            {
+                Vector2 currentPos = obs.Keys.ElementAt(i);
+
+                if (currentPos == spawnPos)
+                    obs.Remove(obs.Keys.ElementAt(i));
+            }
+
+            Game1.getLocationFromName("Farm").dropObject(new StardewValley.Object(giftId, 1, false, -1, 0), spawnPos * 64f, Game1.viewport, true, (Farmer)null);
             //this.Monitor.Log("Object dropped!");
 
             // Convert drop location to dirt (if we would do this beforehand, spawn would be impeded)                        
