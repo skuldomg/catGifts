@@ -320,7 +320,7 @@ namespace catGifts
                             // Spawn gift                                                
 
                             // Remove old gift if there's still one on the floor
-                            OverlaidDictionary<Vector2, StardewValley.Object> obs = Game1.getLocationFromName("Farm").Objects;
+                            var obs = Game1.getLocationFromName("Farm").Objects;
                             Vector2 spawnPos = new Vector2(x, y + 1);
 
                             for(int i=0; i<obs.Count(); i++)
@@ -631,7 +631,7 @@ namespace catGifts
             // Spawn gift            
 
             // Remove old gift if there's still one on the floor
-            OverlaidDictionary<Vector2, StardewValley.Object> obs = Game1.getLocationFromName("Farm").Objects;
+            var obs = Game1.getLocationFromName("Farm").Objects;
             Vector2 spawnPos = new Vector2(tile.X, tile.Y);
 
             for (int i = 0; i < obs.Count(); i++)
