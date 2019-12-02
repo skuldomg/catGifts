@@ -1,0 +1,7 @@
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.csprojAssemblyReference.cache
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.AssemblyInfoInputs.cache
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.AssemblyInfo.cs
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/bin/Debug/net452/catGifts.dll
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/bin/Debug/net452/catGifts.pdb
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.dll
+/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.pdb
