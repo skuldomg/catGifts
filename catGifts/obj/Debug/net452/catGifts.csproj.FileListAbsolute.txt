@@ -5,3 +5,5 @@
 /Users/ishanjalan/Downloads/catGifts-master/catGifts/bin/Debug/net452/catGifts.pdb
 /Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.dll
 /Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/Debug/net452/catGifts.pdb
+C:\Users\skuld\Source\Repos\catGifts\catGifts\obj\Debug\net452\catGifts.dll
+C:\Users\skuld\Source\Repos\catGifts\catGifts\obj\Debug\net452\catGifts.pdb

@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/Users/ishanjalan/Downloads/catGifts-master/catGifts/catGifts.csproj": {}
+    "C:\\Users\\skuld\\Source\\Repos\\catGifts\\catGifts\\catGifts.csproj": {}
   },
   "projects": {
-    "/Users/ishanjalan/Downloads/catGifts-master/catGifts/catGifts.csproj": {
+    "C:\\Users\\skuld\\Source\\Repos\\catGifts\\catGifts\\catGifts.csproj": {
       "version": "1.1.5",
       "restore": {
-        "projectUniqueName": "/Users/ishanjalan/Downloads/catGifts-master/catGifts/catGifts.csproj",
+        "projectUniqueName": "C:\\Users\\skuld\\Source\\Repos\\catGifts\\catGifts\\catGifts.csproj",
         "projectName": "catGifts",
-        "projectPath": "/Users/ishanjalan/Downloads/catGifts-master/catGifts/catGifts.csproj",
-        "packagesPath": "/Users/ishanjalan/.nuget/packages/",
-        "outputPath": "/Users/ishanjalan/Downloads/catGifts-master/catGifts/obj/",
+        "projectPath": "C:\\Users\\skuld\\Source\\Repos\\catGifts\\catGifts\\catGifts.csproj",
+        "packagesPath": "C:\\Users\\skuld\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\skuld\\Source\\Repos\\catGifts\\catGifts\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/ishanjalan/.config/NuGet/NuGet.Config"
+          "C:\\Users\\skuld\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net452"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,10 +40,10 @@
           "dependencies": {
             "Pathoschild.Stardew.ModBuildConfig": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.2.2, )"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
         }
       }
     }
