@@ -40,7 +40,7 @@
           "dependencies": {
             "Pathoschild.Stardew.ModBuildConfig": {
               "target": "Package",
-              "version": "[3.2.2, )"
+              "version": "[4.0.0, )"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"

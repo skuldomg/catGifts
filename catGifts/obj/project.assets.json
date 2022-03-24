@@ -2,15 +2,8 @@
   "version": 3,
   "targets": {
     ".NETFramework,Version=v4.5.2": {
-      "Pathoschild.Stardew.ModBuildConfig/3.2.2": {
+      "Pathoschild.Stardew.ModBuildConfig/4.0.0": {
         "type": "package",
-        "frameworkAssemblies": [
-          "Microsoft.Build",
-          "Microsoft.Build.Framework",
-          "Microsoft.Build.Utilities.v4.0",
-          "System.IO.Compression",
-          "System.Web.Extensions"
-        ],
         "build": {
           "build/Pathoschild.Stardew.ModBuildConfig.targets": {}
         }
@@ -18,10 +11,10 @@
     }
   },
   "libraries": {
-    "Pathoschild.Stardew.ModBuildConfig/3.2.2": {
-      "sha512": "lBnDMxAMD602ku17jE1Wl1M9qbIAftW60VVI+wH+VTQQixjVA8+oW/rzQSUrKf2OzEzkKt7trV/ZHn6p9YnhKQ==",
+    "Pathoschild.Stardew.ModBuildConfig/4.0.0": {
+      "sha512": "pBYJp2Mf8brLC/AY0dl9B1TOtdcjCINNL7hBvqSF6vdkjpoyL7ie7RUpBHA4NpD+pycpPMIz+aNxhatpb2XwIg==",
       "type": "package",
-      "path": "pathoschild.stardew.modbuildconfig/3.2.2",
+      "path": "pathoschild.stardew.modbuildconfig/4.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -33,14 +26,14 @@
         "build/SMAPI.Toolkit.dll",
         "build/find-game-folder.targets",
         "images/icon.png",
-        "pathoschild.stardew.modbuildconfig.3.2.2.nupkg.sha512",
+        "pathoschild.stardew.modbuildconfig.4.0.0.nupkg.sha512",
         "pathoschild.stardew.modbuildconfig.nuspec"
       ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.5.2": [
-      "Pathoschild.Stardew.ModBuildConfig >= 3.2.2"
+      "Pathoschild.Stardew.ModBuildConfig >= 4.0.0"
     ]
   },
   "packageFolders": {
@@ -82,7 +75,7 @@
         "dependencies": {
           "Pathoschild.Stardew.ModBuildConfig": {
             "target": "Package",
-            "version": "[3.2.2, )"
+            "version": "[4.0.0, )"
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
